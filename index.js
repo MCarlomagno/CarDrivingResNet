@@ -414,4 +414,7 @@ play = function(){
     }
 }
 })();
-        
+
+/// template event listeners
+document.getElementById('body').onload = done;
+document.getElementById('playBtn').onclick= play;

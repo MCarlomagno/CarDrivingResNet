@@ -3,7 +3,7 @@
     <head>
         <title>3D Car Drive</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="./styles/styles.css">
+        <link rel="stylesheet" href="/styles.956d002c.css">
     </head>
     <body id="body">
         <div id="scoreDiv">
@@ -15,34 +15,34 @@
             <button id="playBtn"><span style="font-size:18px">Loading Assets<br>Please Wait...<br>This may take a few seconds for first time</span></button><br>
             <div id="ldc"><div id="loading"></div></div>
             <p>Rotate your phone & tilt left/right or tap left/right side of screen to move the car<br>Use left/right arrow key on your PC</p>
-            <script type="text/javascript">
-                (function(){
-                    "use strict"
-                    var hw = window.innerWidth || 360;
-                    var hh = window.innerHeight || 560;
-                    var gameHome = document.getElementById("startPage");
-                    var scoreDiv = document.getElementById("scoreDiv");
-                    if(hh > hw){
-                        gameHome.style.height = hw+"px";
-                        gameHome.style.width = hh+"px";
-                        gameHome.style.transform = "translateX("+hw+"px) rotate(90deg)";
-                        scoreDiv.style.bottom = 0;
-                        scoreDiv.style.transform = "rotate(90deg) translateX(40px)";
-                    }
-                })();
-            </script>
+            <script>(function () {
+  "use strict";
+
+  var hw = window.innerWidth || 360;
+  var hh = window.innerHeight || 560;
+  var gameHome = document.getElementById("startPage");
+  var scoreDiv = document.getElementById("scoreDiv");
+
+  if (hh > hw) {
+    gameHome.style.height = hw + "px";
+    gameHome.style.width = hh + "px";
+    gameHome.style.transform = "translateX(" + hw + "px) rotate(90deg)";
+    scoreDiv.style.bottom = 0;
+    scoreDiv.style.transform = "rotate(90deg) translateX(40px)";
+  }
+})();</script>
         </div>
         
         
-        <div id="mainContainer" style="background:#0f0" >
+        <div id="mainContainer" style="background:#0f0">
             <img id="city" src="https://image.ibb.co/jCGU0y/cty.jpg">
-            <canvas id="myCanvas" style="/*background:#9de732*/" ></canvas>
+            <canvas id="myCanvas" style="/*background:#9de732*/"></canvas>
         </div>
         <img class="aImg" id="t1" src="https://image.ibb.co/dZi5Ly/t1.png">
         <img class="aImg" id="t2" src="https://image.ibb.co/jajjDJ/t2.png">
         <img class="aImg" id="t3" src="https://image.ibb.co/it4jDJ/t5.png">
         <img class="aImg" id="t4" src="https://image.ibb.co/ksy0nd/t4.png">
         <img class="aImg" id="c1" src="https://image.ibb.co/f4v7YJ/c2.png">
-        <script src="index.js"></script>
+        <script src="/CarDrivingPoseNetController.e31bb0bc.js"></script>
     </body>
 </html>
