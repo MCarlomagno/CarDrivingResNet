@@ -9,8 +9,8 @@ const stats = new Stats();
 
 var loaded = false;
 
+/// ResNet configs
 const defaultQuantBytes = 1;
-
 const defaultResNetMultiplier = 1.0;
 const defaultResNetStride = 16;
 const defaultResNetInputResolution = 250;
@@ -97,54 +97,12 @@ function loadGame(){
     var changedHeight = totalHeight-maxH*ratio;
     var cnst1 = Math.pow(ratio,totalRso)/(1-ratio);
     var stp = h-totalHeight;
-    var tMaxH = h*20/36;
-    var treeCnst = tMaxH/roadLeft;
-    
+    var tMaxH = h*20/36; 
     var gameDifficulty = 100;
-    
-    
-    
-    function TreeBuilder(src,src2,start,left){
-        this.src = treeSrc[src];
-        this.src2 = treeSrc[src2];
-        this.y = start;
-        this.x = 0;
-        this.h = 0;
-        this.w = 0;
-        this.dy = 0.01;
-        this.r = 1.009;
-        this.left = left;
-    }
-    
-    TreeBuilder.prototype.draw = function(){
-        this.y += this.dy;
-        this.dy *= this.r;
-        this.x = (h-this.y)*roadConstant - this.w - this.w*this.left;
-        this.h = (roadLeft-this.x-this.w*this.left)*treeCnst;
-        this.w = this.h*2/3;
-        
-        ctx.drawImage(this.src,this.x,this.y-this.h,this.w,this.h);
-        ctx.drawImage(this.src2,w-this.x-this.w,this.y-this.h,this.w,this.h);
-    
-        if(this.y >= h){
-            this.y = stp;
-            this.h = 0;
-            this.w = 0;
-            this.left = Math.random()*3;
-            this.dy = 0.5;
-        }
-    }
-    
+
     function _i(x){
         return document.getElementById(x);
     }
-    var treeSrc = [_i("t1"),_i("t2"),_i("t3"),_i("t4")];
-    
-    var trees = [];
-    for(var n = 0; n < ((h*0.7)/50-2); n++){
-        trees.push(new TreeBuilder(Math.floor(Math.random()*4),Math.floor(Math.random()*4),stp+n*50,2));
-    }
-    
     
     var carWCnst = roadLeft*2/totalHeight;
     var carW = (w > 560) ? 120 : 90;
@@ -160,6 +118,7 @@ function loadGame(){
         this.lane = lane;
     }
     
+    // Car
     CarBuilder.prototype.draw = function(){
         this.dy *= 1.01;
         this.y += this.dy;
@@ -194,7 +153,7 @@ function loadGame(){
         cars.push(new CarBuilder(Math.floor(Math.random()*3),stp+n*gameDifficulty,1));
     }
     
-    //Coin.....
+    //Coin
     var coinW = (w > 560) ? 75 : 60;
     function CoinBuilder(start,lane){
         this.src = coinSrc;
@@ -242,12 +201,7 @@ function loadGame(){
         coins.push(new CoinBuilder(stp+n*(gameDifficulty-50),6));
     }
     
-    
-    
-    //End Coin...
-    
-    
-    
+    //End Coin
     function rectPoints(n,ho){
         n = totalRso-n-1;
         var y1 = stp+maxH*cnst1*(Math.pow(1/ratio,n)-1);
@@ -332,9 +286,6 @@ function loadGame(){
             else rso[n][8] = (n%2==1) ? "#000" : "#fff";
         }
         draw();
-        for(var n = 0; n < trees.length; n++){
-            trees[n].draw();
-        }
         
         for(var n = 0; n < coins.length; n++){
             coins[n].draw();
@@ -378,8 +329,6 @@ function loadGame(){
     c.addEventListener("touchend",getTouchEnd);
     //Key..
 
-
-    /// TODO: Change this zone to implement posenet
     function getKey(e){
 
         e.preventDefault();
@@ -409,10 +358,8 @@ function loadGame(){
     // action performed when a key is starting or finishing pressed
     document.body.addEventListener("keydown",getKey);
     document.body.addEventListener("keyup",getKeyEnd);
-    /// TODO: Change this zone to implement posenet
 
     //Accelarometre
-    
     function driveCar(e){
         var y = e.accelerationIncludingGravity.y;
     
@@ -535,8 +482,11 @@ function detectPoseInRealTime(video, net) {
     poseDetectionFrame();
 }
 
+/**
+ * Performed when the assets are loaded and camera permission is granted.
+ * loads the ResNet model and sets the button 'PLAY' to start playining
+ */
 async function done(){
-
     /// loads PoseNet NN
     const net = await posenet.load({
         architecture: guiState.input.architecture,
@@ -549,10 +499,6 @@ async function done(){
     let video;
     try {
         video = await loadVideo();
-
-        
-        // setupGui([], net);
-        // setupFPS();
         detectPoseInRealTime(video, net);
 
         document.getElementById("ldc").innerHTML="";
@@ -569,14 +515,18 @@ async function done(){
     loaded = true;
 }
 
-
+/**
+ * Sets the camera up and plays video
+ */
 async function loadVideo() {
-    
     const video = await setupCamera();
     video.play();
     return video;
   }
 
+/**
+ * Starts streaming
+ */
 async function setupCamera() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       throw new Error(
@@ -596,12 +546,9 @@ async function setupCamera() {
         height: mobile ? undefined : videoHeight,
       },
     });
-
-    console.log('before setup video');
+    
     video.srcObject = stream;
-    console.log('after setup video');
 
-  
     return new Promise((resolve) => {
       video.onloadedmetadata = () => {
         resolve(video);
