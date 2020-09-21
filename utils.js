@@ -1,26 +1,8 @@
-/**
- * @license
- * Copyright 2019 Google LLC. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * =============================================================================
- */
 const color = 'aqua';
 const lineWidth = 2;
 
 export const tryResNetButtonName = 'tryResNetButton';
 export const tryResNetButtonText = '[New] Try ResNet50';
-const tryResNetButtonTextCss = 'width:100%;text-decoration:underline;';
-const tryResNetButtonBackgroundCss = 'background:#e61d5f;';
 const keypointsToDraw = ['leftWrist', 'rightWrist'];
 
 function isAndroid() {
@@ -34,19 +16,6 @@ function isiOS() {
 export function isMobile() {
   return isAndroid() || isiOS();
 }
-
-// function setDatGuiPropertyCss(propertyText, liCssString, spanCssString = '') {
-//   var spans = document.getElementsByClassName('property-name');
-//   for (var i = 0; i < spans.length; i++) {
-//     var text = spans[i].textContent || spans[i].innerText;
-//     if (text == propertyText) {
-//       spans[i].parentNode.parentNode.style = liCssString;
-//       if (spanCssString !== '') {
-//         spans[i].style = spanCssString;
-//       }
-//     }
-//   }
-// }
 
 function toTuple({y, x}) {
   return [y, x];

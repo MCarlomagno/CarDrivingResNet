@@ -2,24 +2,26 @@ import * as posenet from '@tensorflow-models/posenet';
 import Stats from 'stats.js';
 import {angleBetween, drawSteeringWheel, getWrists, isMobile} from './utils';
 
+/// video configs 🔧
 let play;
 const videoWidth = 257;
 const videoHeight = 200;
 const stats = new Stats();
-
 var loaded = false;
 
-/// ResNet configs
+/// ResNet configs 🔧
 const defaultQuantBytes = 1;
 const defaultResNetMultiplier = 1.0;
 const defaultResNetStride = 16;
 const defaultResNetInputResolution = 250;
 
-/// inclination (in degrees) in which the car will move
+/// inclination (in degrees) in which the car will move 📐
 const sensitivity = 25
 
+/// change left & change right commands 🏎️
 var cl = false, cr = false;
 
+/// app states
 const guiState = {
     algorithm: 'single-pose',
     input: {
@@ -70,6 +72,9 @@ const guiState = {
     
     var ctx = c.getContext("2d");
 
+/**
+ * Performed when the button 'PLAY' is pressed, starts the game! 🏎️ 🏎️
+ */
 function loadGame(){
     "use strict";
     
@@ -118,7 +123,7 @@ function loadGame(){
         this.lane = lane;
     }
     
-    // Car
+    // Car 🏎️
     CarBuilder.prototype.draw = function(){
         this.dy *= 1.01;
         this.y += this.dy;
@@ -153,7 +158,7 @@ function loadGame(){
         cars.push(new CarBuilder(Math.floor(Math.random()*3),stp+n*gameDifficulty,1));
     }
     
-    //Coin
+    //Coin 💰
     var coinW = (w > 560) ? 75 : 60;
     function CoinBuilder(start,lane){
         this.src = coinSrc;
@@ -546,7 +551,7 @@ async function setupCamera() {
         height: mobile ? undefined : videoHeight,
       },
     });
-    
+
     video.srcObject = stream;
 
     return new Promise((resolve) => {
