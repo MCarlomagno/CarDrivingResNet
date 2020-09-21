@@ -14,17 +14,14 @@
  * limitations under the License.
  * =============================================================================
  */
-import * as posenet from '@tensorflow-models/posenet';
-import * as tf from '@tensorflow/tfjs';
-
 const color = 'aqua';
-const boundingBoxColor = 'red';
 const lineWidth = 2;
 
 export const tryResNetButtonName = 'tryResNetButton';
 export const tryResNetButtonText = '[New] Try ResNet50';
 const tryResNetButtonTextCss = 'width:100%;text-decoration:underline;';
 const tryResNetButtonBackgroundCss = 'background:#e61d5f;';
+const keypointsToDraw = ['leftWrist', 'rightWrist'];
 
 function isAndroid() {
   return /Android/i.test(navigator.userAgent);
@@ -48,26 +45,6 @@ function setDatGuiPropertyCss(propertyText, liCssString, spanCssString = '') {
         spans[i].style = spanCssString;
       }
     }
-  }
-}
-
-export function updateTryResNetButtonDatGuiCss() {
-  setDatGuiPropertyCss(
-      tryResNetButtonText, tryResNetButtonBackgroundCss,
-      tryResNetButtonTextCss);
-}
-
-/**
- * Toggles between the loading UI and the main canvas UI.
- */
-export function toggleLoadingUI(
-    showLoadingUI, loadingDivId = 'loading', mainDivId = 'main') {
-  if (showLoadingUI) {
-    document.getElementById(loadingDivId).style.display = 'block';
-    document.getElementById(mainDivId).style.display = 'none';
-  } else {
-    document.getElementById(loadingDivId).style.display = 'none';
-    document.getElementById(mainDivId).style.display = 'block';
   }
 }
 
@@ -95,49 +72,97 @@ export function drawSegment([ay, ax], [by, bx], color, scale, ctx) {
 }
 
 /**
- * Draws a pose skeleton by looking up all adjacent keypoints/joints
+ * Draws a circle on a canvas
  */
-export function drawSkeleton(keypoints, minConfidence, ctx, scale = 1) {
-  const adjacentKeyPoints =
-      posenet.getAdjacentKeyPoints(keypoints, minConfidence);
-
-  adjacentKeyPoints.forEach((keypoints) => {
-    drawSegment(
-        toTuple(keypoints[0].position), toTuple(keypoints[1].position), color,
-        scale, ctx);
-  });
+export function drawCircle([y, x], rad, color, ctx) {
+  ctx.beginPath();
+  ctx.arc(x, y, rad, 0, 2 * Math.PI);
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = color;
+  ctx.stroke();
 }
 
+
 /**
- * Draw pose keypoints onto a canvas
+ * Filers the wrists from all the keypoints detected
+ * @param {array} keypoints 
+ * @param {float} minConfidence 
  */
-export function drawKeypoints(keypoints, minConfidence, ctx, scale = 1) {
+export function getWrists(keypoints, minConfidence) {
+  let wrists = [];
   for (let i = 0; i < keypoints.length; i++) {
     const keypoint = keypoints[i];
-
-    if (keypoint.score < minConfidence) {
+    if (!keypointsToDraw.includes(keypoint.part) || keypoint.score < minConfidence) {
       continue;
     }
-
-    const {y, x} = keypoint.position;
-    drawPoint(ctx, y * scale, x * scale, 3, color);
+    wrists.push(keypoint);
   }
+  return wrists;
 }
 
 /**
- * Draw the bounding box of a pose. For example, for a whole person standing
- * in an image, the bounding box will begin at the nose and extend to one of
- * ankles
+ * Draws steering wheel into a canvas
  */
-export function drawBoundingBox(keypoints, ctx) {
-  const boundingBox = posenet.getBoundingBox(keypoints);
+export function drawSteeringWheel(wrists, ctx, scale = 1) {
 
-  ctx.rect(
-      boundingBox.minX, boundingBox.minY, boundingBox.maxX - boundingBox.minX,
-      boundingBox.maxY - boundingBox.minY);
+  if(wrists.length >= 2) {
 
-  ctx.strokeStyle = boundingBoxColor;
-  ctx.stroke();
+    const rightWrist = wrists[0];
+    const leftWrist = wrists[1];
+
+    const rx = rightWrist.position.x;
+    const ry = rightWrist.position.y;
+    const lx = leftWrist.position.x;
+    const ly = leftWrist.position.y;
+    
+    const centerY = (ry + ly) / 2;
+    const centerX = (rx + lx) / 2;
+    
+    drawPoint(ctx, ry * scale, rx * scale, 3, color);
+    drawPoint(ctx, ly * scale, lx * scale, 3, color);
+
+    /// steering wheel
+    // segment between hands
+    drawSegment(
+      toTuple(wrists[0].position), toTuple(wrists[1].position), color,
+      scale, ctx);
+    
+    const distanceX = rx-lx;
+    const distanceY = ry-ly;
+    const len = Math.hypot(distanceX, distanceY)
+    const rad = len / 2;
+    
+    drawCircle([centerY, centerX], rad / 3, color, ctx);
+    drawCircle([centerY, centerX], rad, color, ctx);
+  }
+
+}
+
+/**
+ * Computes the angle between the wrists
+ * @param {array} wrists
+ */
+export function angleBetween(wrists) {
+
+  if(wrists.length < 2) {
+    return 0.0;
+  }
+
+  const rightWrist = wrists[0];
+  const leftWrist = wrists[1];
+
+  const rx = rightWrist.position.x;
+  const ry = rightWrist.position.y;
+  const lx = leftWrist.position.x;
+  const ly = leftWrist.position.y;
+
+  var dy = ly - ry;
+  var dx = lx - rx;
+
+  var theta = Math.atan2(dy, dx); // range (-PI, PI]
+  theta *= -180 / Math.PI; // rads to degs, range (-180, 180]
+
+  return theta;
 }
 
 /**
@@ -173,59 +198,3 @@ export function renderImageToCanvas(image, size, canvas) {
   ctx.drawImage(image, 0, 0);
 }
 
-/**
- * Draw heatmap values, one of the model outputs, on to the canvas
- * Read our blog post for a description of PoseNet's heatmap outputs
- * https://medium.com/tensorflow/real-time-human-pose-estimation-in-the-browser-with-tensorflow-js-7dd0bc881cd5
- */
-export function drawHeatMapValues(heatMapValues, outputStride, canvas) {
-  const ctx = canvas.getContext('2d');
-  const radius = 5;
-  const scaledValues = heatMapValues.mul(tf.scalar(outputStride, 'int32'));
-
-  drawPoints(ctx, scaledValues, radius, color);
-}
-
-/**
- * Used by the drawHeatMapValues method to draw heatmap points on to
- * the canvas
- */
-function drawPoints(ctx, points, radius, color) {
-  const data = points.buffer().values;
-
-  for (let i = 0; i < data.length; i += 2) {
-    const pointY = data[i];
-    const pointX = data[i + 1];
-
-    if (pointX !== 0 && pointY !== 0) {
-      ctx.beginPath();
-      ctx.arc(pointX, pointY, radius, 0, 2 * Math.PI);
-      ctx.fillStyle = color;
-      ctx.fill();
-    }
-  }
-}
-
-/**
- * Draw offset vector values, one of the model outputs, on to the canvas
- * Read our blog post for a description of PoseNet's offset vector outputs
- * https://medium.com/tensorflow/real-time-human-pose-estimation-in-the-browser-with-tensorflow-js-7dd0bc881cd5
- */
-export function drawOffsetVectors(
-    heatMapValues, offsets, outputStride, scale = 1, ctx) {
-  const offsetPoints =
-      posenet.singlePose.getOffsetPoints(heatMapValues, outputStride, offsets);
-
-  const heatmapData = heatMapValues.buffer().values;
-  const offsetPointsData = offsetPoints.buffer().values;
-
-  for (let i = 0; i < heatmapData.length; i += 2) {
-    const heatmapY = heatmapData[i] * outputStride;
-    const heatmapX = heatmapData[i + 1] * outputStride;
-    const offsetPointY = offsetPointsData[i];
-    const offsetPointX = offsetPointsData[i + 1];
-
-    drawSegment(
-        [heatmapY, heatmapX], [offsetPointY, offsetPointX], color, scale, ctx);
-  }
-}

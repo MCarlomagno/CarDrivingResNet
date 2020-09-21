@@ -1,21 +1,24 @@
 import * as posenet from '@tensorflow-models/posenet';
-import dat from 'dat.gui';
 import Stats from 'stats.js';
-import {drawBoundingBox, drawKeypoints, drawSkeleton, isMobile, toggleLoadingUI, tryResNetButtonName, tryResNetButtonText, updateTryResNetButtonDatGuiCss} from './utils';
+import {angleBetween, drawSteeringWheel, getWrists, isMobile} from './utils';
 
 let play;
-const videoWidth = 400;
-const videoHeight = 300;
+const videoWidth = 257;
+const videoHeight = 200;
 const stats = new Stats();
 
 var loaded = false;
 
-const defaultQuantBytes = 2;
+const defaultQuantBytes = 1;
 
 const defaultResNetMultiplier = 1.0;
-const defaultResNetStride = 32;
+const defaultResNetStride = 16;
 const defaultResNetInputResolution = 250;
 
+/// inclination (in degrees) in which the car will move
+const sensitivity = 25
+
+var cl = false, cr = false;
 
 const guiState = {
     algorithm: 'single-pose',
@@ -39,7 +42,7 @@ const guiState = {
     output: {
       showVideo: true,
       showSkeleton: true,
-      showPoints: false,
+      showPoints: true,
       showBoundingBox: false,
     },
     net: null,
@@ -303,7 +306,7 @@ function loadGame(){
     }
     
     var cx = (w-carW)/2;
-    var cl = false, cr = false;
+    
     var car = _i("c1");
     var ms = 3*w/560;
     function drawCar(){
@@ -408,22 +411,6 @@ function loadGame(){
     document.body.addEventListener("keyup",getKeyEnd);
     /// TODO: Change this zone to implement posenet
 
-    // Steps:
-    // 1 listen the posenet values
-
-    // define bands with values (e.g. height*1/3 = upper band; height* 2/3 = lower band)
-
-    // check
-    // 2.1 if the right hand is under the band and the left hand is over it move to right
-    //   2.1.1. cr = false; cl = true;
-    //   2.1.2. if the right hand is over the lower the band or the left one is under the upper band
-    //     2.1.2.1. cl = false
-
-    // 2.2 if the left hand is under the band and the right hand is over it move to left
-    //   2.1.1. cr = true; cl = false;
-    //   2.1.2. if the left hand is over the lower the band or the right one is under the upper band
-    //     2.1.2.1. cr = false
-
     //Accelarometre
     
     function driveCar(e){
@@ -503,13 +490,39 @@ function detectPoseInRealTime(video, net) {
       poses.forEach(({score, keypoints}) => {
         if (score >= minPoseConfidence) {
           if (guiState.output.showPoints) {
-            drawKeypoints(keypoints, minPartConfidence, ctx);
-          }
-          if (guiState.output.showSkeleton) {
-            drawSkeleton(keypoints, minPartConfidence, ctx);
-          }
-          if (guiState.output.showBoundingBox) {
-            drawBoundingBox(keypoints, ctx);
+            
+            let wrists = [];
+            
+            // returns a list with left and right wrists coordinates
+            // [0] -> right
+            // [1] -> left
+            wrists = getWrists(keypoints, minPartConfidence);
+
+            if(wrists.length >= 2) {
+                drawSteeringWheel(wrists, ctx);
+
+                let angle = 0.0;
+                angle = angleBetween(wrists);
+
+                
+                if(angle < -sensitivity) {
+                    // turns right
+                    cr = false;
+                    cl = true;
+                } else if(cl) {
+                    cl = false;
+                }
+
+                if(angle > sensitivity) {
+                    // turns right
+                    cr = true;
+                    cl = false;
+                } else if(cr) {
+                    cr = false;
+                }
+
+            }
+
           }
         }
       });
