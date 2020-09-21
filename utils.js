@@ -35,18 +35,18 @@ export function isMobile() {
   return isAndroid() || isiOS();
 }
 
-function setDatGuiPropertyCss(propertyText, liCssString, spanCssString = '') {
-  var spans = document.getElementsByClassName('property-name');
-  for (var i = 0; i < spans.length; i++) {
-    var text = spans[i].textContent || spans[i].innerText;
-    if (text == propertyText) {
-      spans[i].parentNode.parentNode.style = liCssString;
-      if (spanCssString !== '') {
-        spans[i].style = spanCssString;
-      }
-    }
-  }
-}
+// function setDatGuiPropertyCss(propertyText, liCssString, spanCssString = '') {
+//   var spans = document.getElementsByClassName('property-name');
+//   for (var i = 0; i < spans.length; i++) {
+//     var text = spans[i].textContent || spans[i].innerText;
+//     if (text == propertyText) {
+//       spans[i].parentNode.parentNode.style = liCssString;
+//       if (spanCssString !== '') {
+//         spans[i].style = spanCssString;
+//       }
+//     }
+//   }
+// }
 
 function toTuple({y, x}) {
   return [y, x];
