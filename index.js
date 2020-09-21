@@ -125,7 +125,7 @@ function loadGame(){
     
     // Car 🏎️
     CarBuilder.prototype.draw = function(){
-        this.dy *= 1.01;
+        this.dy *= 1.003; // vertical car velocity
         this.y += this.dy;
         this.x = (carWCnst/2)*(h-this.y)+(w-(carWCnst*(h-this.y)))*this.lane/8;
         this.w = carW-carW*carWCnst*(h-this.y)/w;
@@ -171,7 +171,7 @@ function loadGame(){
     }
     
     CoinBuilder.prototype.draw = function(){
-        this.dy *= 1.01;
+        this.dy *= 1.003; // vertical coin velocity
         this.y += this.dy;
         this.x = (carWCnst/2)*(h-this.y)+(w-(carWCnst*(h-this.y)))*this.lane/8;
         this.w = coinW-coinW*carWCnst*(h-this.y)/w;
@@ -267,7 +267,7 @@ function loadGame(){
     var cx = (w-carW)/2;
     
     var car = _i("c1");
-    var ms = 3*w/560;
+    var ms = 3*w/1500; // horizontal velocity
     function drawCar(){
         if(cl) if(cx+carW+50 < w) cx+=ms;
         if(cr) if(cx-50 > 0) cx-=ms;
