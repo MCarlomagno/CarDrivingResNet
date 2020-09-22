@@ -1,4 +1,4 @@
-# Car Driving ResNet Controller
+# Car Driving ResNet
 Browser game where a vehicle is driven through the camera using the [ResNet model](https://arxiv.org/pdf/1512.03385.pdf) (Deep Residual Network) to estimate the position of the hands.
 
 The application is written on top of [this codepen](https://codepen.io/Toky/pen/GGrNNr).
