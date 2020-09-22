@@ -50,7 +50,7 @@ In this project, the position of the wrists is estimated, and then the angle for
 Finally we use the result to alter the movement of the vehicle on the road.
 
 ## Demo
-https://mcarlomagno.github.io/CarDrivingResNetController/
+https://mcarlomagno.github.io/CarDrivingResNet/
 
 ## Licence
 https://opensource.org/licenses/BSD-3-Clause
