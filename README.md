@@ -48,9 +48,9 @@ Using the PoseNet library of tensorflow.js we can obtain the positions of the di
 In this project, the position of the wrists is estimated, and then the angle formed by the segment between them is calculated to infer if the "steering wheel" moved to the left or right.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/MCarlomagno/assets/master/steering-wheel-position.png" alt="Car ResNet 1"/>
-  <img src="https://raw.githubusercontent.com/MCarlomagno/assets/master/steering-wheel-position-with-angle.png" alt="Car ResNet 2"/>
-  <img src="https://raw.githubusercontent.com/MCarlomagno/assets/master/angles.png" alt="Car ResNet 3"/>
+  <img src="https://raw.githubusercontent.com/MCarlomagno/assets/master/steering-wheel-position.png" width="30%" alt="Car ResNet 1"/>
+  <img src="https://raw.githubusercontent.com/MCarlomagno/assets/master/steering-wheel-position-with-angle.png"  width="30%" alt="Car ResNet 2"/>
+  <img src="https://raw.githubusercontent.com/MCarlomagno/assets/master/angles.png" width="30%" alt="Car ResNet 3"/>
 </div>
 
 Finally we use the result to alter the movement of the vehicle on the road.
